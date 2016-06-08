@@ -20,32 +20,36 @@ class OpsParser:
 
 	def parse_grades(self, items):
 		"""Parse grades"""
+		self.debug(0, "Vuosiluokat")
 		for item in items:
 			name = item['nimi']['fi']	
 			item['name'] = name  					# Default name for faster access 
+			self.debug(1, name)
 			self.grades[int(item['id'])] = item     
 
 
 	def parse_subjects(self, items):
 		"""Parse subjects"""
+		self.debug(0, "Oppiaineet")
+
 		for item in items:
 			name = item['nimi']['fi']
 			item['name'] = name
 			self.subjects.append(item) 
 
-			self.debug(0, name)
+			self.debug(1, name)
 
 			# Loop target areas 
 			if "kohdealueet" in item:
-				self.debug(1, "Kohdealueet:")
+				self.debug(2, "Kohdealueet:")
 				for area in item['kohdealueet']:
-					self.debug(2, area['nimi']['fi'])
+					self.debug(3, area['nimi']['fi'])
 
 			# Loop target areas 
 			if "oppimaarat" in item:
-				self.debug(1, "Oppimäärät:")
+				self.debug(2, "Oppimäärät:")
 				for tmp in item['oppimaarat']:
-					self.debug(2, tmp['nimi']['fi'])
+					self.debug(3, tmp['nimi']['fi'])
 
 			# Get grades material 
 			if 'vuosiluokkakokonaisuudet' in item:
@@ -55,7 +59,7 @@ class OpsParser:
 					self.debug(2, self.grades[int(info['_vuosiluokkaKokonaisuus'])]['name'])
 			
 					if info['sisaltoalueinfo']:
-						self.debug(2, info['sisaltoalueinfo']['otsikko']['fi'])
+						self.debug(3, info['sisaltoalueinfo']['otsikko']['fi'])
 
 					# Targets
 					self.debug(2, "Tavoitteet:")
@@ -70,31 +74,37 @@ class OpsParser:
 
 	def parse_metadata(self, items):
 		"""Parse metadata"""
+		self.debug(0, "Laaja-alaiset osaamiset:")
 		for item in items:
 			name = item['nimi']['fi']
 			item['name'] = name
+			self.debug(1, name)
 			self.meta[item['id']] = item
 
 
 	def parse_tree(self, items, depth=0):
+		self.debug(0, "Suunnitelma:")
+		self.recurse(items)
+
+	def recurse(self, items, depth=0):
 		for item in items:
-			self.debug(depth, item['perusteenOsa']['nimi']['fi'])
+			self.debug(depth + 1 , item['perusteenOsa']['nimi']['fi'])
 			if 'lapset' in item:
-				self.parse_tree(item['lapset'], depth+1)
+				self.recurse(item['lapset'], depth+1)
 
 
 	def get_subjects(self):
-		"""Returns array of subjects"""	
+		"""Returns list of subjects"""	
 		pass
 
 
 	def get_grades(self):
-		"""Returns array of grades"""	
+		"""Returns list of grades"""	
 		pass
 
 
 	def get_subjects_by_grade(self, id):
-		"""Returns array of subjects"""	
+		"""Returns list of subjects"""	
 		pass
 
 
